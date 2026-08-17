@@ -234,6 +234,49 @@ describe('blink-lnurl helpers', () => {
       ).rejects.toThrow(/not found/);
     });
 
+    it('marks a "not found" status:ERROR as terminal (invoice will never settle)', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(
+        jsonResponse({ status: 'ERROR', reason: 'Not found' })
+      );
+      const err = await BlinkLnurl.verifyLnurlPayment(
+        'https://blink.sv/verify/h',
+        fetchMock
+      ).catch((e) => e);
+      expect(err).toBeInstanceOf(Error);
+      expect(err.lnurlVerifyTerminal).toBe(true);
+    });
+
+    // Blink's verify route also returns status:ERROR for TRANSIENT backend failures
+    // (a GraphQL throw => "…try again later", or a DB error => "Internal server error").
+    // Those must NOT be terminal, or a temporary blip would permanently stop the only
+    // settlement detector and a later payment would go unobserved.
+    it('does NOT mark a transient "try again later" status:ERROR as terminal', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(
+        jsonResponse({
+          status: 'ERROR',
+          reason: 'We could not verify the invoice. Please try again later.',
+        })
+      );
+      const err = await BlinkLnurl.verifyLnurlPayment(
+        'https://blink.sv/verify/h',
+        fetchMock
+      ).catch((e) => e);
+      expect(err).toBeInstanceOf(Error);
+      expect(err.lnurlVerifyTerminal).toBeUndefined();
+    });
+
+    it('does NOT mark an "Internal server error" status:ERROR as terminal', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(
+        jsonResponse({ status: 'ERROR', reason: 'Internal server error' })
+      );
+      const err = await BlinkLnurl.verifyLnurlPayment(
+        'https://blink.sv/verify/h',
+        fetchMock
+      ).catch((e) => e);
+      expect(err).toBeInstanceOf(Error);
+      expect(err.lnurlVerifyTerminal).toBeUndefined();
+    });
+
     it('throws on a non-ok HTTP response', async () => {
       const fetchMock = vi.fn().mockResolvedValue(
         jsonResponse({}, { ok: false, status: 502, statusText: 'Bad Gateway' })
@@ -241,6 +284,18 @@ describe('blink-lnurl helpers', () => {
       await expect(
         BlinkLnurl.verifyLnurlPayment('https://blink.sv/verify/h', fetchMock)
       ).rejects.toThrow(/502/);
+    });
+
+    it('does NOT mark a transient non-ok HTTP error as terminal', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(
+        jsonResponse({}, { ok: false, status: 502, statusText: 'Bad Gateway' })
+      );
+      const err = await BlinkLnurl.verifyLnurlPayment(
+        'https://blink.sv/verify/h',
+        fetchMock
+      ).catch((e) => e);
+      expect(err).toBeInstanceOf(Error);
+      expect(err.lnurlVerifyTerminal).toBeUndefined();
     });
   });
 });

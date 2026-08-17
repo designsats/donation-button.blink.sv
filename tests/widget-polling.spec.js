@@ -115,6 +115,89 @@ describe('pollVerifyStatus (bounded)', () => {
         await vi.advanceTimersByTimeAsync(10000);
         expect(verify.mock.calls.length).toBe(callsWhenSettled); // stopped
     });
+
+    it('stops immediately on a terminal verify error (status:ERROR), not backing off to expiry', async () => {
+        // A genuine {"status":"ERROR"} means the invoice will never settle; keep
+        // re-polling it until expiry is pointless. verifyLnurlPayment tags such
+        // errors terminal; pollVerifyStatus must stop rather than reschedule.
+        const err = new Error('LNURL verify error: not found');
+        err.lnurlVerifyTerminal = true;
+        const verify = vi.fn().mockRejectedValue(err);
+        widget.getLnurl = () => ({ verifyLnurlPayment: verify });
+        widget.invoiceExpiresAt = Date.now() + 60000; // far from expiry
+
+        widget.pollVerifyStatus('https://blink.sv/verify/h');
+        await vi.advanceTimersByTimeAsync(0); // let the initial check run
+
+        expect(verify).toHaveBeenCalledTimes(1);
+        expect(widget.paymentPollTimeout).toBeNull(); // did not reschedule
+
+        // Advancing past both the 2s success cadence and the 5s error backoff
+        // proves it truly stopped.
+        await vi.advanceTimersByTimeAsync(10000);
+        expect(verify).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps backing off and retrying on a transient (non-terminal) error', async () => {
+        // A transient network/HTTP blip must NOT stop polling: back off 5s and retry.
+        const transient = new Error('LNURL verify returned 502');
+        const verify = vi
+            .fn()
+            .mockRejectedValueOnce(transient) // first poll fails transiently
+            .mockResolvedValue({ settled: false }); // subsequent polls unpaid
+        widget.getLnurl = () => ({ verifyLnurlPayment: verify });
+        widget.invoiceExpiresAt = Date.now() + 60000;
+
+        widget.pollVerifyStatus('https://blink.sv/verify/h');
+        await vi.advanceTimersByTimeAsync(0); // initial check throws transiently
+        expect(verify).toHaveBeenCalledTimes(1);
+        expect(widget.paymentPollTimeout).not.toBeNull(); // scheduled a retry
+
+        await vi.advanceTimersByTimeAsync(5000); // 5s error backoff elapses => retry
+        expect(verify.mock.calls.length).toBeGreaterThan(1);
+
+        widget.stopPaymentPolling(); // don't leave it polling
+    });
+
+    // Blink's verify route returns status:ERROR for a transient backend failure
+    // ("…try again later"). verifyLnurlPayment throws WITHOUT the terminal tag for
+    // such reasons, so pollVerifyStatus must keep retrying (not stop), or a later
+    // payment would go unobserved. Drives the real inline verifyLnurlPayment via a
+    // stubbed fetch so the reason-based classification is exercised end-to-end.
+    it('keeps retrying when verify returns a transient "try again later" status:ERROR', async () => {
+        const inline = widget.getLnurl(); // real inline verifyLnurlPayment
+        widget.getLnurl = () => inline;
+
+        let calls = 0;
+        const fetchMock = vi.fn().mockImplementation(async () => {
+            calls++;
+            // Always the transient ERROR envelope (HTTP 200, status:ERROR).
+            return {
+                ok: true,
+                status: 200,
+                statusText: 'OK',
+                json: async () => ({
+                    status: 'ERROR',
+                    reason: 'We could not verify the invoice. Please try again later.',
+                }),
+            };
+        });
+        window.fetch = fetchMock;
+        global.fetch = fetchMock;
+        widget.invoiceExpiresAt = Date.now() + 60000;
+
+        widget.pollVerifyStatus('https://blink.sv/verify/h');
+        await vi.advanceTimersByTimeAsync(0); // initial check: transient ERROR thrown
+        expect(calls).toBe(1);
+        expect(widget.paymentPollTimeout).not.toBeNull(); // scheduled a retry (did NOT stop)
+
+        await vi.advanceTimersByTimeAsync(5000); // 5s error backoff => retry
+        expect(calls).toBeGreaterThan(1);
+
+        widget.stopPaymentPolling();
+        delete window.fetch;
+        delete global.fetch;
+    });
 });
 
 describe('stopPaymentPolling', () => {

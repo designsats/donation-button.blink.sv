@@ -1,8 +1,8 @@
-# Blink Donation Button - Analytics Tracking
+# Blink Donate Button - Analytics Tracking
 
 ## Overview
 
-The Blink Donation Button widget now includes built-in analytics tracking to help the Blink team understand how and where their widget is being used, and to track referrals from embedded donation buttons.
+The Blink Donate Button widget now includes built-in analytics tracking to help the Blink team understand how and where their widget is being used, and to track referrals from embedded donate buttons.
 
 ## How It Works
 
@@ -27,7 +27,7 @@ https://get.blink.sv?username=twentyone&referral=embedded_donation_button&embed_
 
 This analytics tracking enables Blink to:
 
-1. **Track Widget Usage**: See how many people are using embedded donation buttons
+1. **Track Widget Usage**: See how many people are using embedded donate buttons
 2. **Identify Popular Sites**: Understand which websites are driving the most referrals
 3. **User Acquisition**: Track new users coming from embedded widgets
 4. **Feature Analytics**: Monitor widget version adoption and usage patterns

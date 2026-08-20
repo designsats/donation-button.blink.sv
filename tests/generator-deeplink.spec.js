@@ -4,7 +4,7 @@
  * The generator supports username-customized URLs (e.g.
  * https://donation-button.blink.sv/pretyflaco) so external surfaces like the
  * Blink app's "Ways to get paid" section can link straight to a pre-generated
- * donation button. 404.html captures the path and hands the username to the
+ * donate button. 404.html captures the path and hands the username to the
  * generator via sessionStorage; these helpers turn a raw path into a candidate
  * username and resolve the deep-link username for a page load.
  *

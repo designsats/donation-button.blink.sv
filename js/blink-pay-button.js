@@ -1,7 +1,17 @@
 /**
  * Blink Pay Button Widget
  * A simple widget for accepting Bitcoin Lightning donations via Blink wallet
- * Version: 1.5.1 - Stop LUD-21 verify polling early ONLY on a stable terminal
+ * Version: 1.5.2 - Copy: the widget is now the "Donate Button" (was "Donation Button")
+ *                  across the generator UI, docs and manual test pages. The invoice memo
+ *                  sent on both receive paths changes from "<username> donation button"
+ *                  to "<username> donate button". On the custodial path that memo is the
+ *                  invoice description payers see; on the self-custodial (Spark) path it
+ *                  is sent as the LUD-12 comment, so the payer-visible description stays
+ *                  the LNURL metadata ("Payment to <username>") as before. Analytics
+ *                  referral tag ('embedded_donation_button') and all
+ *                  donation-button.blink.sv paths are deliberately unchanged.
+ *                  No public API / DOM changes.
+ *          1.5.1 - Stop LUD-21 verify polling early ONLY on a stable terminal
  *                  verify error (status:ERROR with a "not found" reason: the
  *                  invoice will never settle) instead of re-polling until expiry.
  *                  Ambiguous/transient ERRORs — "Internal server error", a
@@ -1673,7 +1683,7 @@
             const satsAmount = this.convertToSatoshis(amount, this.selectedCurrency);
             this.log('Self-custodial: requesting LN-address invoice', { lightningAddress, satsAmount });
 
-            const memo = `${this.username} donation button`;
+            const memo = `${this.username} donate button`;
             let invoice;
             try {
                 invoice = await lnurl.getInvoiceFromLightningAddress(
@@ -1875,7 +1885,7 @@
                 input: {
                     recipientWalletId: walletId,
                     amount: amount.toString(),
-                    memo: `${this.username} donation button`,
+                    memo: `${this.username} donate button`,
                     expiresIn: "15"
                 }
             };
@@ -1899,7 +1909,7 @@
                     input: {
                         amount: amount.toString(),
                         recipientWalletId: walletId,
-                        memo: `${this.username} donation button`,
+                        memo: `${this.username} donate button`,
                         expiresIn: "5"
                     }
                 };
@@ -2767,7 +2777,7 @@
             }
             
             // Add widget version for tracking
-            params.append('widget_version', '1.5.1');
+            params.append('widget_version', '1.5.2');
             
             return `${baseUrl}?${params.toString()}`;
         }

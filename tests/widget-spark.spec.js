@@ -99,7 +99,7 @@ describe('widget inline Spark helpers (getLnurl)', () => {
     const result = await inline.getInvoiceFromLightningAddress(
       'yasar@blink.sv',
       5000,
-      'yasar donation button'
+      'yasar donate button'
     );
     expect(result.paymentRequest).toBe('lnbc1sparkinvoice');
     expect(result.verifyUrl).toBe('https://blink.sv/verify/abc');

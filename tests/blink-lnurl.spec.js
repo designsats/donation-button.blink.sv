@@ -175,7 +175,7 @@ describe('blink-lnurl helpers', () => {
       const result = await BlinkLnurl.getInvoiceFromLightningAddress(
         'yasar@blink.sv',
         5000,
-        'yasar donation button',
+        'yasar donate button',
         fetchMock
       );
       expect(result.paymentRequest).toBe('lnbc1sparkinvoice');

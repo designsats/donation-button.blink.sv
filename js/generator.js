@@ -1,6 +1,6 @@
 /**
- * Blink Donation Button Generator
- * Generates embeddable code for a Bitcoin Lightning donation button
+ * Blink Donate Button Generator
+ * Generates embeddable code for a Bitcoin Lightning donate button
  */
 
 /**
@@ -8,7 +8,7 @@
  *
  * The generator supports a username-customized URL so external surfaces (e.g.
  * the Blink mobile app "Ways to get paid" section) can link straight to a
- * pre-generated donation button, e.g.:
+ * pre-generated donate button, e.g.:
  *
  *     https://donation-button.blink.sv/pretyflaco
  *
@@ -534,10 +534,10 @@ function initGenerator() {
         const buttonWidthConfig = currentButtonWidth ? `\n        buttonWidth: ${currentButtonWidth},` : '';
         
         // Generate the HTML code for embedding with the domain
-        const generatedCode = `<!-- Blink Donation Button widget -->
+        const generatedCode = `<!-- Blink Donate Button widget -->
 <div id="blink-pay-button-container"></div>
 
-<!-- Blink Donation Button script -->
+<!-- Blink Donate Button script -->
         <script src="https://blinkbitcoin.github.io/donation-button.blink.sv/js/blink-pay-button.js"></script>
 <script>
   // Initialize widget when script is loaded
@@ -727,7 +727,7 @@ function initGenerator() {
     // Deep-link bootstrap: if the page was reached via a username-customized URL
     // (e.g. https://donation-button.blink.sv/pretyflaco, linked from the Blink
     // app's "Ways to get paid" section), prefill the username and auto-generate
-    // so the visitor lands straight on their donation button. Existence is still
+    // so the visitor lands straight on their donate button. Existence is still
     // verified inside generateCode() (with the Spark LNURL fallback), so an
     // unknown username shows the normal "does not exist yet" message.
     const deepLinkUsername = resolveDeepLinkUsername(window);

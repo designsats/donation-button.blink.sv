@@ -1,4 +1,4 @@
-# Blink Donation Button Widget
+# Blink Donate Button Widget
 
 A lightweight, embeddable Bitcoin Lightning donation widget that integrates with [Blink](https://blink.sv/) for instant, low-fee Bitcoin payments. Built with vanilla JavaScript and designed for easy integration into any website.
 
@@ -20,7 +20,7 @@ A lightweight, embeddable Bitcoin Lightning donation widget that integrates with
 
 **Generator**: [https://blinkbitcoin.github.io/donation-button.blink.sv/](https://blinkbitcoin.github.io/donation-button.blink.sv/)
 
-Try the widget generator to create your own donation button in seconds!
+Try the widget generator to create your own donate button in seconds!
 
 ## 🏃‍♂️ Quick Start
 
@@ -37,10 +37,10 @@ Visit [blinkbitcoin.github.io/donation-button.blink.sv](https://blinkbitcoin.git
 Paste the generated code into your HTML:
 
 ```html
-<!-- Blink Donation Button widget -->
+<!-- Blink Donate Button widget -->
 <div id="blink-pay-button-container"></div>
 
-<!-- Blink Donation Button script -->
+<!-- Blink Donate Button script -->
 <script src="https://blinkbitcoin.github.io/donation-button.blink.sv/js/blink-pay-button.js"></script>
 <script>
   BlinkPayButton.init({
@@ -162,7 +162,7 @@ self-custodial (Spark) username.
 
 ## 📊 Analytics Tracking
 
-The widget includes built-in analytics tracking when users click the Blink logo. This helps Blink understand widget usage and track referrals from embedded donation buttons.
+The widget includes built-in analytics tracking when users click the Blink logo. This helps Blink understand widget usage and track referrals from embedded donate buttons.
 
 **Tracked Information:**
 - Username configured in the widget
@@ -174,7 +174,7 @@ The widget includes built-in analytics tracking when users click the Blink logo.
 
 ## 🎨 Styling & Responsive Design
 
-The widget automatically adapts to light/dark themes and is fully responsive. The donation button is designed to work seamlessly in various container sizes and environments, including Elementor containers.
+The widget automatically adapts to light/dark themes and is fully responsive. The donate button is designed to work seamlessly in various container sizes and environments, including Elementor containers.
 
 ### Responsive Features
 
